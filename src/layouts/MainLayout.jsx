@@ -12,10 +12,6 @@ const MainLayout = () => {
     <>
       <Navbar />
       <Outlet />
-      {/* <BillingDashboard />
-      <AddUserForm />
-      <UserPage />
-      <StudentTuitionPage /> */}
     </>
   );
 };

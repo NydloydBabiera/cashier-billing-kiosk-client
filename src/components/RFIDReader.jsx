@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import StudentInformationCard from "./StudentInformationCard";
 import axios from "axios";
+import InputField from "./common/InputField";
 
 function RFIDReader() {
   const [rfidData, setRfidData] = useState("");
@@ -8,24 +9,8 @@ function RFIDReader() {
   const [error, setError] = useState(null);
   const [data, setData] = useState([]);
   const [debouncedRfid, setDebouncedRfid] = useState("");
+  const [paymentAmt, setPaymentAmt] = useState("");
 
-
-  const dummyData = {
-    student_tuition_details_id: 1,
-    tuition_amt: 23441.12,
-    user_identification_id: 1,
-    student: {
-      user_identification_id: 1,
-      id_number: 1234,
-      rfid_id: "4321",
-      user_type: "STUDENT",
-      createdAt: "2024-11-08T08:04:08.091Z",
-      updatedAt: "2024-11-08T08:04:08.091Z",
-      user_information_id: 1,
-    },
-  };
-
- 
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedRfid(rfidData);
@@ -43,9 +28,13 @@ function RFIDReader() {
     }
   }, [debouncedRfid]);
 
-  const handleInputChange = async(e) => {
+  const handleInputChange = async (e) => {
     setRfidData(e.target.value);
+  };
 
+  const handleInputPayment = (e) => {
+    const newValue = e.target.value.replace(/[^0-9]/g, "");
+    setPaymentAmt(newValue);
   };
 
   const clearData = () => setRfidData("");
@@ -55,6 +44,12 @@ function RFIDReader() {
       const response = await axios.get(
         `http://localhost:6100/tuition/getStudentTuition/${rfidValue}`
       );
+      {
+        loading && <p>Loading...</p>;
+      }
+      {
+        error && <p style={{ color: "red" }}>{error}</p>;
+      }
       setData(response.data); // Set the fetched data
       setLoading(false);
     } catch (err) {
@@ -62,7 +57,29 @@ function RFIDReader() {
       setLoading(false);
     }
   };
-
+  const handlePaymentSubmit = async () => {
+  
+    if(data)
+    try {
+      const headers = {
+        "Content-Type": "application/json",
+      };
+      const response = await axios.post(
+        "http://localhost:6100/transactions/addTuitionPayment",
+        {
+          amt: paymentAmt,
+          student_tuition_id: data.tuition_id,
+        },
+        { headers }
+      );
+      // add success modal or confirmation here
+      console.log(response);
+      clearData()
+    } catch (error) {
+      // add error modal or confirmation here
+      console.error("Error submitting form:", error);
+    }
+  };
   return (
     <div className="max-w-md mx-auto p-4 bg-white shadow-lg rounded-lg">
       <h2 className="text-2xl font-handwriting font-bold mb-4 text-center text-gray-700">
@@ -72,21 +89,47 @@ function RFIDReader() {
       <div className="mb-4 p-4 border border-gray-300 rounded-md bg-gray-50">
         {/* <p className="text-gray-600">{handleInputChange || "No data scanned"}</p> */}
         <input
-        type="text"
-        value={rfidData}
-        onChange={handleInputChange}
-        placeholder="Scan RFID to begin transaction"
-        className="border p-2 rounded w-full"
-      />
+          type="text"
+          value={rfidData}
+          onChange={handleInputChange}
+          placeholder="Scan RFID to begin transaction"
+          className="border p-2 rounded w-full"
+        />
       </div>
-      <button
-        onClick={clearData}
-        className="w-full bg-indigo-600 text-white py-2 rounded-md font-semibold hover:bg-indigo-700 transition"
-      >
-        Clear Data
-      </button>
 
+      {rfidData ? (
+        <button
+          onClick={clearData}
+          className="w-full bg-indigo-600 text-white py-2 rounded-md font-semibold hover:bg-indigo-700 transition"
+        >
+          Clear Data
+        </button>
+      ) : (
+        ""
+      )}
       {rfidData ? <StudentInformationCard studentData={data} /> : ""}
+      {rfidData ? (
+        <InputField
+          label="Payment"
+          id="paymenmt"
+          type="number"
+          placeholder="Payment"
+          onChange={handleInputPayment}
+          disabled={false}
+        />
+      ) : (
+        ""
+      )}
+      {rfidData ? (
+        <button
+          onClick={handlePaymentSubmit}
+          className="w-full bg-indigo-600 text-white py-2 rounded-md font-semibold hover:bg-indigo-700 transition"
+        >
+          Submit Payment
+        </button>
+      ) : (
+        ""
+      )}
     </div>
   );
 }

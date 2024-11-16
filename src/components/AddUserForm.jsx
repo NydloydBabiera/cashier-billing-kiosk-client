@@ -20,15 +20,15 @@ const AddUserForm = ({ onSubmit, onSubmitSuccess  }) => {
   const handleRfidChange = (e) => {
     setFormData((prevData) => ({
       ...prevData,
-      rfidNumber: e.target.value, // Update rfidNumber with scanned value
+      rfidNumber: e.target.value,
     }));
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target; // Destructure name and value from e.target
+    const { name, value } = e.target;
     setFormData((prevState) => ({
       ...prevState,
-      [name]: value, // Update the corresponding field in the form data
+      [name]: value,
     }));
   };
 

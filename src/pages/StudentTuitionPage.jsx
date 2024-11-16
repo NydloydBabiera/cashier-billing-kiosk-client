@@ -2,18 +2,26 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import Modal from "../components/common/Modal";
 import AddStudentTuitionForm from "../components/AddStudentTuitionForm";
+import InputField from "../components/common/InputField";
+import { format, formatDate } from "date-fns";
+import List from "../components/common/List";
 
 const StudentTuitionPage = () => {
   const [data, setData] = useState([]);
+  const [paymentData, setpaymentData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPmtHistoryOpen, setPmtHistoryOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [rfidData, setRfidData] = useState("");
+  const [selectedPayment, setSelectedPayment] = useState([]);
   const [studentData, setStudentData] = useState({});
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+  const openPmthistory = () => setPmtHistoryOpen(true);
+  const closePmthistory = () => setPmtHistoryOpen(false);
 
   const fetchData = async () => {
     try {
@@ -27,9 +35,24 @@ const StudentTuitionPage = () => {
       setLoading(false);
     }
   };
+
+  const fetchPayments = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:6100/transactions/getAllTransactions"
+      );
+      setpaymentData(response.data); // Set the fetched data
+      setLoading(false);
+    } catch (err) {
+      setError("Error fetching data", err.message);
+      setLoading(false);
+    }
+  };
+
   // Fetch data from the API
   useEffect(() => {
     fetchData();
+    fetchPayments();
   }, []);
 
   // Conditional rendering for loading and error states
@@ -41,6 +64,16 @@ const StudentTuitionPage = () => {
 
     openModal();
   };
+  const handleViewPaymnent = (tuition) => {
+    console.log(tuition);
+    setSelectedPayment(tuition);
+    setPmtHistoryOpen(true);
+  };
+  const payments = selectedPayment
+    ? paymentData.filter(
+        (payment) => payment.tuition?.student?.rfid_id === selectedPayment
+      )
+    : [];
 
   const handleInputChange = (e) => {
     setRfidData(e.target.value);
@@ -84,6 +117,7 @@ const StudentTuitionPage = () => {
                 <th className="py-3 px-6 font-heading">Last Name</th>
                 <th className="py-3 px-6 font-heading">ID Number</th>
                 <th className="py-3 px-6 font-heading">Tuition Amount</th>
+                <th className="py-3 px-6 font-heading">Balance</th>
                 <th className="py-3 px-6 font-heading">Actions</th>
               </tr>
             </thead>
@@ -107,7 +141,32 @@ const StudentTuitionPage = () => {
                       {tuition.information.id_number}
                     </td>
                     <td className="py-3 px-6 text-center">
-                      {tuition.information.student?.tuition_amt}
+                      {!tuition.information.student?.tuition_amt
+                        ? 0
+                        : new Intl.NumberFormat("en-PH", {
+                            style: "currency",
+                            currency: "PHP",
+                          }).format(tuition.information.student?.tuition_amt)}
+                    </td>
+
+                    <td className="py-3 px-6 text-center uppercase">
+                      {!tuition.information.student?.tuition
+                        ? 0
+                        : !tuition.information.student?.tuition.length > 0
+                        ? new Intl.NumberFormat("em-PH", {
+                            style: "currency",
+                            currency: "PHP",
+                          }).format(tuition.information.student?.tuition_amt)
+                        : new Intl.NumberFormat("en-PH", {
+                            style: "currency",
+                            currency: "PHP",
+                          }).format(
+                            tuition.information.student?.tuition_amt -
+                              tuition.information?.student?.tuition.reduce(
+                                (acc, curr) => acc + curr.amt_paid,
+                                0
+                              )
+                          )}
                     </td>
                     <td className="py-3 px-6 text-center">
                       {!tuition.information.student?.tuition_amt ? (
@@ -121,10 +180,12 @@ const StudentTuitionPage = () => {
                       ) : (
                         <button
                           type="submit"
-                          onClick={openModal}
+                          onClick={() =>
+                            handleViewPaymnent(tuition.information.rfid_id)
+                          }
                           className="bg-blue-500 text-white font-medium px-2 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
                         >
-                          View Details
+                          Payments
                         </button>
                       )}
                     </td>
@@ -149,6 +210,13 @@ const StudentTuitionPage = () => {
               studentData={studentData}
               onSubmitSuccess={fetchData}
             />
+          </Modal>
+          <Modal
+            isOpen={isPmtHistoryOpen}
+            onClose={closePmthistory}
+            title="Payment History"
+          >
+            <List paymentData={payments} />
           </Modal>
         </div>
       </div>

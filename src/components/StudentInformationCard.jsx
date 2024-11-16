@@ -2,7 +2,6 @@ import React from "react";
 import InputField from "./common/InputField";
 
 const StudentInformationCard = ({studentData}) => {
-  console.log("studentData:",studentData)
   return (
       <div>
       <InputField
@@ -41,14 +40,6 @@ const StudentInformationCard = ({studentData}) => {
         disabled={true}
       />
 
-      <InputField
-        label="Payment"
-        id="lastName"
-        type="text"
-        value={studentData.balance}
-        placeholder="Payment"
-        disabled={false}
-      />
 
       </div>
   );

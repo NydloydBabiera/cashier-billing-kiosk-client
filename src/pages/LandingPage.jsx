@@ -1,4 +1,5 @@
 import React from "react";
+import icon from "../assets/coin-bill-acceptor-logo.svg"
 
 const LandingPage = () => {
   return (
@@ -7,9 +8,9 @@ const LandingPage = () => {
         <h1 className="font-handwriting text-5xl  place-items-center">
         <strong>RFID</strong> - based Bill and Coin Acceptor Cashiering System
         </h1>
-        <p>(add icon here)</p>
+        <img className="h-48 w-auto" src={icon}></img>
       </div>
-      <div className="flex w-full  py-40">
+      <div className="flex w-full  py-10">
         <div className="w-1/2 mx-10">
           <h1 className="font-bold">The Web Cashier Self-Payment</h1>
           <p className="text-justify">

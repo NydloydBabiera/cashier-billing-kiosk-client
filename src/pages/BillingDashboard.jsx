@@ -3,6 +3,7 @@ import StudentInformationCard from "../components/StudentInformationCard";
 import RFIDReader from "../components/RFIDReader";
 
 const BillingDashboard = () => {
+  
   return (
     <div className="flex mb-4 border border-black h-screen">
       <div className="w-1/2 bg-blue-500 content-center place-items-center">
