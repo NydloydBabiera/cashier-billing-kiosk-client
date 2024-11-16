@@ -5,13 +5,20 @@ import UserPage from "../pages/UserPage";
 import AddUserForm from "../components/AddUserForm";
 import StudentTuitionPage from "../pages/StudentTuitionPage";
 import Navbar from "../components/Navbar";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 
 const MainLayout = () => {
+  const location = useLocation();
+  const noNavbarRoutes = ['/dashboard'];
+  const hideNavbar = noNavbarRoutes.includes(location.pathname);
   return (
     <>
-      <Navbar />
-      <Outlet />
+      {/* <Navbar />
+      <Outlet /> */}
+       {!hideNavbar && <Navbar />}
+      <main>
+        <Outlet /> {/* Render the current page */}
+      </main>
     </>
   );
 };
