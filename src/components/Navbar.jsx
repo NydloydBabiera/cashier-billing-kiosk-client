@@ -42,6 +42,12 @@ const Navbar = () => {
                 >
                   Billing Dashboard
                 </Link>
+                <Link
+                  to="/dashboard"
+                  className="text-white font-handwriting hover:bg-gray-900 hover:text-white rounded-md px-3 py-2"
+                >
+                  Promisory
+                </Link>
               </div>
             </div>
           </div>

@@ -1,24 +1,53 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import StudentInformationCard from "../components/StudentInformationCard";
 import RFIDReader from "../components/RFIDReader";
 import icon from "../assets/coin-bill-acceptor logo.png";
+import io from 'socket.io-client';
 const BillingDashboard = () => {
+
+  const [getPaymentType, setPaymentType] = useState(null)
+  const [isPromisory, setIsPromisory] = useState(null)
+
+  const onPaymentType = (val) => setIsPromisory(val)
+
+
   return (
-    <div className="flex mb-4 h-screen">
-      <div className="w-1/2 bg-blue-500 content-center place-items-center">
-        <div className="place-items-center bg-blue-500 rounded-md w-80 ">
-          <h1 className="text-white font-handwriting text-5xl mx-5 place-items-center">
-            <strong>RFID</strong> - based Bill and Coin Acceptor Cashiering
-            System
-          </h1>
-        </div>
-      </div>
-      <div className="w-1/2 bg-whiter-500 content-center place-items-center">
-        <div className="bg-transparent">
+
+    <div className="h-screen content-center place-items-center">
+      <div className="bg-transparent">
           <img className="bg-transparent h-24 w-auto" src={icon}></img>
         </div>
+      <h1 className="text-black font-handwriting text-5xl ">
+        <strong>RFID</strong> - based Bill and Coin Acceptor Cashiering
+        System
+      </h1>
+      <div className={`border border-red-500 ${isPromisory == null ? `block` : `hidden`}`}>
+        <button
+          type="submit"
+          onClick={() => onPaymentType(false)}
+          className="bg-blue-500 text-white text-4xl w-full font-handwriting px-2 my-2 rounded-lg hover:bg-blue-600 transition duration-200"
+        >
+          Full Payment
+        </button>
+        <button
+          type="submit"
+          onClick={() => onPaymentType(true)}
+          className="bg-blue-500 text-white  text-4xl w-full font-handwriting px-2 my-2 rounded-lg hover:bg-blue-600 transition duration-200"
+        >
+          Promisory Payment
+        </button>
+      </div>
+      <div className={`place-items-center content-center ${isPromisory == null ? `hidden` : `block`}`}>
+        
         <div className="place-items-center content-center">
           <RFIDReader />
+          <button
+            type="submit"
+            onClick={() => onPaymentType(null)}
+            className="bg-blue-500 text-white  text-4xl w-full font-handwriting px-2 my-2 rounded-lg hover:bg-blue-600 transition duration-200"
+          >
+            Cancel
+          </button>
         </div>
       </div>
     </div>
