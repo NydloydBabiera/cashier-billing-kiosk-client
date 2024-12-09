@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, NavLink } from "react-router-dom";
-import icon from "../assets/coin-bill-acceptor-logo.svg"
+
 
 const Navbar = () => {
   return (

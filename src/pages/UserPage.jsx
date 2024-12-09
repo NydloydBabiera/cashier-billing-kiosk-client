@@ -5,6 +5,7 @@ import Modal from "../components/common/Modal";
 import RFIDReader from "../components/RFIDReader";
 import ScanRFID from "../components/common/ScanRFID";
 import { Link } from "react-router-dom";
+import MessageModal from "../components/common/MessageModal";
 
 const UserPage = () => {
   const [data, setData] = useState([]);
@@ -81,6 +82,12 @@ const UserPage = () => {
           >
             ADD
           </button>
+          <MessageModal  isOpen={true}
+            onClose={closeModal}
+            type="Confirmation"
+            messsage="Confrmation message">
+           
+          </MessageModal>
 
           <Modal
             isOpen={isModalOpen}
