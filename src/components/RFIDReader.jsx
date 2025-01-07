@@ -3,8 +3,11 @@ import StudentInformationCard from "./StudentInformationCard";
 import axios from "axios";
 import InputField from "./common/InputField";
 import io from 'socket.io-client';
-const socket = io('');
-function RFIDReader() {
+import PaymentReceiver from "./PaymentReceiver";
+import Modal from "./common/Modal";
+import MessageModal from "./common/MessageModal";
+// const socket = io('');
+function RFIDReader({ isPromisory }) {
   const [rfidData, setRfidData] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -12,6 +15,11 @@ function RFIDReader() {
   const [debouncedRfid, setDebouncedRfid] = useState("");
   const [paymentAmt, setPaymentAmt] = useState("");
   const [arduinoData, setArduinoData] = useState('');
+  const [isForPmt, setIsForPmt] = useState(false)
+  const [insertAmt, setInsertAmt] = useState(0)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -32,27 +40,27 @@ function RFIDReader() {
 
   useEffect(() => {
     // Listen for the 'arduinoData' event from the server
-    socket.on('arduinoData', (data) => {
-      console.log('Received from Arduino:', data);
-      setArduinoData(data);  // Update state with received data
-    });
+    // socket.on('arduinoData', (data) => {
+    //   console.log('Received from Arduino:', data);
+    //   setArduinoData(data);  // Update state with received data
+    // });
 
-    // Listen for other events if needed
-    socket.on('arduinoMessage', (message) => {
-      console.log('Received WebSocket message:', message);
-    });
+    // // Listen for other events if needed
+    // socket.on('arduinoMessage', (message) => {
+    //   console.log('Received WebSocket message:', message);
+    // });
 
-    return () => {
-      // Cleanup WebSocket connection when component unmounts
-      socket.off('arduinoData');
-      socket.off('arduinoMessage');
-    };
+    // return () => {
+    //   // Cleanup WebSocket connection when component unmounts
+    //   socket.off('arduinoData');
+    //   socket.off('arduinoMessage');
+    // };
   }, []);
 
-  const sendCommand = (command) => {
-    console.log('Sending command to server:', command);
-    socket.emit(command);  // Send the command to the server
-  };
+  // const sendCommand = (command) => {
+  //   console.log('Sending command to server:', command);
+  //   socket.emit(command);  // Send the command to the server
+  // };
 
   const handleInputChange = async (e) => {
     setRfidData(e.target.value);
@@ -85,84 +93,120 @@ function RFIDReader() {
     }
   };
   const handlePaymentSubmit = async () => {
+    // if (paymentAmt !== insertAmt) {
+    //   openModal();
+    //   return
 
+    // }
     if (data)
       try {
+
         const headers = {
           "Content-Type": "application/json",
         };
         const response = await axios.post(
           "http://localhost:6100/transactions/addTuitionPayment",
           {
-            amt: paymentAmt,
+            amt: insertAmt,
             student_tuition_id: data.tuition_id,
+            isPromiPayment: (insertAmt >= (data.amt_balance * 0.5) && insertAmt < data.amt_balance),
+            amount_due: data.amt_balance
           },
           { headers }
         );
         // add success modal or confirmation here
         console.log(response);
-        clearData()
+        // clearData()
+        window.location.reload()
       } catch (error) {
         // add error modal or confirmation here
         console.error("Error submitting form:", error);
       }
   };
-
+  const handleInsertAmt = (e) => {
+    const newValue = e.target.value.replace(/[^0-9]/g, "");
+    setInsertAmt(newValue);
+  }
   const handleChange = (e) => {
     const newValue = e.target.value.replace(/[^0-9]/g, "");
     setTuitionAmt(newValue);
   };
   return (
-    <div className="max-w-lg mx-auto bg-white shadow-lg rounded-lg">
-      <h2 className="text-4xl font-handwriting font-bold mb-4 text-center text-gray-700">
-        Tap your RFID to begin transaction
-      </h2>
+    <div className="bg-white shadow-lg">
+      <div className={isForPmt ? `hidden` : `block`}>
+        <h2 className="text-4xl font-handwriting font-bold mb-4 text-center text-gray-700">
+          Tap your RFID to begin transaction
+        </h2>
 
-      <div className="mb-4 p-4 border border-gray-300 rounded-md bg-gray-50">
-        {/* <p className="text-gray-600">{handleInputChange || "No data scanned"}</p> */}
-        <input
-          type="text"
-          value={rfidData}
-          onChange={handleInputChange}
-          placeholder="Scan RFID to begin transaction"
-          className="border p-2 rounded w-full text-3xl"
-        />
-      </div>
+        <div className="mb-4 p-4 border border-gray-300 rounded-md bg-gray-50">
+          {/* <p className="text-gray-600">{handleInputChange || "No data scanned"}</p> */}
+          <input
+            type="text"
+            value={rfidData}
+            onChange={handleInputChange}
+            placeholder="Scan RFID to begin transaction"
+            className="border p-2 rounded w-full text-3xl"
+          />
+        </div>
 
-      {rfidData ? (
-        <button
-          onClick={clearData}
-          className="w-full bg-indigo-600 text-white py-2 rounded-md font-semibold hover:bg-indigo-700 transition"
-        >
-          Clear Data
-        </button>
-      ) : (
-        ""
-      )}
-      {rfidData ? <StudentInformationCard studentData={data} /> : ""}
-      {rfidData ? (
-        <InputField
-          label="Payment"
-          id="paymenmt"
-          // type="number"
-          placeholder="Payment"
-          onChange={handleInputPayment}
+        {rfidData ? (
+          <button
+            onClick={clearData}
+            className="w-full bg-indigo-600 text-white py-2 rounded-md font-semibold hover:bg-indigo-700 transition"
+          >
+            Clear Data
+          </button>
+        ) : (
+          ""
+        )}
+        {rfidData ? <StudentInformationCard studentData={data} /> : ""}
+        {rfidData ? (
+          <InputField
+            label="Payment"
+            id="paymenmt"
+            type="number"
+            placeholder="Payment"
+            onChange={handleInputPayment}
           // disabled={false}
           // value={arduinoData}
-        />
-      ) : (
-        ""
-      )}
-      {rfidData ? (
-        <button
-          onClick={handlePaymentSubmit}
-          className="w-full bg-indigo-600 text-white py-2 rounded-md font-semibold hover:bg-indigo-700 transition"
-        >
-          Submit Payment
-        </button>
-      ) : (
-        ""
-      )}
+          />
+        ) : (
+          ""
+        )}
+
+        {rfidData ? (
+          <button
+            onClick={() => setIsForPmt(true)}
+            className="w-full bg-indigo-600 text-white py-2 rounded-md font-semibold hover:bg-indigo-700 transition">
+            Proceed Payment</button>
+
+        ) : (
+          ""
+        )}
+
+      </div>
+      {isForPmt ? (
+        <div>
+          <h2 className="text-5xl font handwriting font-bold mb-4 text-center">Insert your payment</h2>
+          <h2 className="text-5xl font handwriting font-bold text-center">Amount: {paymentAmt}</h2>
+          <InputField
+            label=""
+            id="insertAmt"
+            type="number"
+            placeholder="Inserted Amount Payment"
+            onChange={handleInsertAmt}
+          // disabled={false}
+          />
+          <button
+            onClick={handlePaymentSubmit}
+            className="w-full bg-indigo-600 text-white py-2 rounded-md font-semibold hover:bg-indigo-700 transition"
+          >
+            Submit Payment
+          </button> </div>) : ("")}
+      <MessageModal isOpen={isModalOpen}
+        onClose={closeModal}
+        type="Warning"
+        messsage="Inserted amount is not equal to said payment" />
     </div>
   );
 }

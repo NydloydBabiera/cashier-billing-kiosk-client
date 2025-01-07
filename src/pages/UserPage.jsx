@@ -28,6 +28,7 @@ const UserPage = () => {
     } catch (err) {
       setError("Error fetching data", err.message);
       setLoading(false);
+      setData([])
     }
   };
   // Fetch data from the API
@@ -82,12 +83,12 @@ const UserPage = () => {
           >
             ADD
           </button>
-          <MessageModal  isOpen={true}
+          {/* <MessageModal  isOpen={true}
             onClose={closeModal}
             type="Confirmation"
             messsage="Confrmation message">
            
-          </MessageModal>
+          </MessageModal> */}
 
           <Modal
             isOpen={isModalOpen}

@@ -3,11 +3,12 @@ import PropTypes from "prop-types";
 import React from "react";
 
 const List = ({ paymentData }) => {
-  console.log("paymentData:", paymentData);
+  paymentData.map((payment) => console.log(payment))
   return (
     <div>
       <dl className="max-w-md text-gray-900 divide-y divide-gray-200 dark:text-white dark:divide-gray-700">
         {paymentData.length > 0 ? (
+          
           paymentData.map((payment) => (
             <div className="flex flex-col pb-3">
               <dt className="text-base mb-1">

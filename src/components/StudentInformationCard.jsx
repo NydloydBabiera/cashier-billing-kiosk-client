@@ -35,7 +35,7 @@ const StudentInformationCard = ({studentData}) => {
         label="Amount Due"
         id="lastName"
         type="text"
-        value={studentData.amount_due}
+        value={studentData.amt_balance}
         placeholder="Amount Due"
         disabled={true}
       />
