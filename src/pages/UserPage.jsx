@@ -109,6 +109,7 @@ const UserPage = () => {
                 <th className="py-3 px-6 font-heading">First Name</th>
                 <th className="py-3 px-6 font-heading">Middle Name</th>
                 <th className="py-3 px-6 font-heading">Last Name</th>
+                <th className="py-3 px-6 font-heading">RFID</th>
                 <th className="py-3 px-6 font-heading">ID Number</th>
                 <th className="py-3 px-6 font-heading">Type</th>
               </tr>
@@ -128,6 +129,9 @@ const UserPage = () => {
                     </td>
                     <td className="py-3 px-6 text-center uppercase">
                       {user.lastName}
+                    </td>
+                    <td className="py-3 px-6 text-center uppercase">
+                      {user.information.rfid_id}
                     </td>
                     <td className="py-3 px-6 text-center uppercase">
                       {user.information.id_number}
