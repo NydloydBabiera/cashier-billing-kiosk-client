@@ -13,6 +13,7 @@ import Navbar from "./components/Navbar";
 import StudentTuitionPage from "./pages/StudentTuitionPage";
 import LandingPage from "./pages/LandingPage";
 import PromisoryPayments from "./pages/PromisoryPayments";
+import PrintTable from "./components/common/PrintTable";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -22,6 +23,7 @@ const router = createBrowserRouter(
       <Route path="/tuition" element={<StudentTuitionPage />} />
       <Route path="/dashboard" element={<BillingDashboard />} />
       <Route path="/promisory" element={<PromisoryPayments />} />
+      <Route path="/printTable" element={<PrintTable />} />
     </Route>
   )
 );

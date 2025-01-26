@@ -3,12 +3,12 @@ import { GiConfirmed } from "react-icons/gi";
 import { IoIosWarning } from "react-icons/io";
 import { IoInformationCircleSharp } from "react-icons/io5";
 
-const MessageModal = ({ isOpen, onClose, messsage, type }) => {
+const MessageModal = ({ isOpen, onClose, messsage, type, onConfirm }) => {
   if (!isOpen) return null;
   const iconDisplay = (msgType) => {
     switch (msgType) {
       case "Confirmation":
-        return <GiConfirmed className="color-blue-500"/>;
+        return <GiConfirmed className="color-blue-500" />;
       case "Information":
         return <IoInformationCircleSharp />;
       case "Warning":
@@ -25,9 +25,29 @@ const MessageModal = ({ isOpen, onClose, messsage, type }) => {
         >
           &times;
         </button>
-        
-        <h2 className="text-2xl font-semibold mb-4">{type} {iconDisplay(type)}</h2>
-        <div>{messsage}</div>
+
+        <div className="flex items-center gap-3 mb-4">
+          <div className="text-3xl">{iconDisplay(type)}</div>
+          <h2 className="text-2xl font-semibold">{type}</h2>
+        </div>
+
+        <div>
+          <p>{messsage}</p>
+        </div>
+        <div className="flex justify-end gap-3 mt-6">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Confirm
+          </button>
+        </div>
       </div>
     </div>
   );

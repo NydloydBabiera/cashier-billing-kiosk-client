@@ -20,6 +20,9 @@ function RFIDReader({ isPromisory }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+  const [msgType, setMsgType] = useState("");
+  const [modalMsg, setModalMsg] = useState("");
+  const [confirmModal, setConfirmModal] = useState(false);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -83,7 +86,27 @@ function RFIDReader({ isPromisory }) {
     setPaymentAmt(newValue);
   };
 
+  const handleManualInpuntPayment = (e) =>{
+    const newValue = e.target.value.replace(/[^0-9]/g, "");
+    setInsertAmt(newValue);
+  }
+
   const handleInsertPayment = () => {
+    if (data.amount_due > paymentAmt) {
+      setMsgType("Warning");
+      setModalMsg(
+        "Your payment is not equal to your amount balance, this will be a promisory payment. Would you like to proceed?"
+      );
+      openModal();
+      return;
+    }
+    setIsForPmt(true);
+    sendCommand(1);
+  };
+
+  const handleConfirmation = () => {
+    setConfirmModal(true);
+    closeModal();
     setIsForPmt(true);
     sendCommand(1);
   };
@@ -113,11 +136,6 @@ function RFIDReader({ isPromisory }) {
     }
   };
   const handlePaymentSubmit = async () => {
-    // if (paymentAmt !== insertAmt) {
-    //   openModal();
-    //   return
-
-    // }
     if (data)
       try {
         const headers = {
@@ -128,9 +146,7 @@ function RFIDReader({ isPromisory }) {
           {
             amt: insertAmt,
             student_tuition_id: data.tuition_id,
-            isPromiPayment:
-              insertAmt >= data.amt_balance * 0.5 &&
-              insertAmt < data.amt_balance,
+            isPromiPayment:  insertAmt < data.amt_balance,
             amount_due: data.amt_balance,
           },
           { headers }
@@ -138,8 +154,16 @@ function RFIDReader({ isPromisory }) {
         // add success modal or confirmation here
         console.log(response);
         // clearData()
-        window.location.reload();
+        
         sendCommand(0);
+        if(response)
+        //print receipt modal
+        setMsgType("Information");
+        setModalMsg(
+          "Receipt is printing, please wait for a while..."
+        );
+        openModal();
+        // window.location.reload();
       } catch (error) {
         // add error modal or confirmation here
         console.error("Error submitting form:", error);
@@ -166,7 +190,7 @@ function RFIDReader({ isPromisory }) {
     }
   };
   return (
-    <div className="bg-white shadow-lg">
+    <div className="">
       <div className={isForPmt ? `hidden` : `block`}>
         <h2 className="text-4xl font-handwriting font-bold mb-4 text-center text-gray-700">
           Tap your RFID to begin transaction
@@ -211,7 +235,7 @@ function RFIDReader({ isPromisory }) {
         {rfidData ? (
           <button
             onClick={handleInsertPayment}
-            className="w-full bg-indigo-600 text-white py-2 rounded-md font-semibold hover:bg-indigo-700 transition"
+            className="w-full bg-indigo-600 text-2xl text-white py-2 rounded-md font-semibold hover:bg-indigo-700 transition"
           >
             Proceed Payment
           </button>
@@ -236,12 +260,13 @@ function RFIDReader({ isPromisory }) {
           /> */}
           <input
             value={insertAmt}
+            onChange={handleManualInpuntPayment}
             className="text-center text-4xl w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-            disabled={true}
+            // disabled={true}
           />
           <button
             onClick={handlePaymentSubmit}
-            className="w-full bg-indigo-600 text-white py-2 rounded-md font-semibold hover:bg-indigo-700 transition"
+            className="w-full bg-indigo-600 text-2xl text-white py-2 rounded-md font-semibold hover:bg-indigo-700 transition"
           >
             Submit Payment
           </button>{" "}
@@ -252,8 +277,9 @@ function RFIDReader({ isPromisory }) {
       <MessageModal
         isOpen={isModalOpen}
         onClose={closeModal}
-        type="Warning"
-        messsage="Inserted amount is not equal to said payment"
+        type={msgType}
+        messsage={modalMsg}
+        onConfirm={handleConfirmation}
       />
     </div>
   );
