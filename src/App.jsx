@@ -14,11 +14,14 @@ import StudentTuitionPage from "./pages/StudentTuitionPage";
 import LandingPage from "./pages/LandingPage";
 import PromisoryPayments from "./pages/PromisoryPayments";
 import PrintTable from "./components/common/PrintTable";
+import LoginPage from "./pages/LoginPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<MainLayout />}>
-      <Route index element={<LandingPage />} />
+      <Route index element={<LoginPage />} />
+      {/* <Route index element={<LandingPage />} /> */}
+      <Route path="/landingPage" element={<LandingPage />} />
       <Route path="/users" element={<UserPage />} />
       <Route path="/tuition" element={<StudentTuitionPage />} />
       <Route path="/dashboard" element={<BillingDashboard />} />

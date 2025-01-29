@@ -107,7 +107,7 @@ const AddUserForm = ({ onSubmit, onSubmitSuccess  }) => {
         <Combobox
           label="Select a type"
           id="userType"
-          options={["ADMIN", "STUDENT", "TREASURY"]}
+          options={["ADMIN", "STUDENT", "TREASURY", "CASHIER"]}
           value={formData.userType}
           onChange={handleChange} // Passing handleChange to update the form data
           placeholder="Type to search for type"

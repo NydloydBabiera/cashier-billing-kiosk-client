@@ -7,6 +7,7 @@ import { format, formatDate } from "date-fns";
 import List from "../components/common/List";
 import PrintTable from "../components/common/PrintTable";
 import { useNavigate } from "react-router-dom";
+import PromisorryApproval from "../components/PromisorryApproval";
 
 const PromisoryPayments = () => {
   const [data, setData] = useState([]);
@@ -26,6 +27,15 @@ const PromisoryPayments = () => {
   const openPmthistory = () => setPmtHistoryOpen(true);
   const closePmthistory = () => setPmtHistoryOpen(false);
   const navigate = useNavigate();
+  const [selectedTransactionId, setSelectedTransactionId] = useState();
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
+
+  const options = [
+    { value: "ALL", label: "ALL" },
+    { value: "PROMI", label: "PROMI" },
+    { value: "FULL", label: "FULL" },
+  ];
 
   const fetchData = async () => {
     try {
@@ -65,7 +75,7 @@ const PromisoryPayments = () => {
 
   const handleOnclickRow = (tuition) => {
     setStudentData(tuition);
-
+    setSelectedTransactionId(tuition.tuition_payment_transaction_id);
     openModal();
   };
   const handleViewPaymnent = (tuition) => {
@@ -82,6 +92,11 @@ const PromisoryPayments = () => {
   const handleInputChange = (e) => {
     setRfidData(e.target.value);
     setSearchTerm(e.target.value);
+  };
+
+  const handleOnSubmit = () => {
+    fetchData();
+    closeModal();
   };
 
   // Filter the data based on the search term (case insensitive)
@@ -102,14 +117,20 @@ const PromisoryPayments = () => {
     // <Route path="/users" element={<UserPage />} />
   };
 
+  const handleSelect = (option) => {
+    console.log(option)
+    setSelectedOption(option);
+    setIsOpen(false); // Close the dropdown after selecting an option
+  };
+
   return (
     <div className="h-screen">
       <div className={isPrinting ? `hidden` : `block`}>
         <div className="container mx-auto p-4">
           <span className="hidden md:block text-black text-3xl font-heading font-bold ml-2">
-            Promisory Payments
+            Payments
           </span>
-          <div className="flex items-center my-2 justify-between content-center">
+          <div className="flex items-center my-2 justify-between">
             <input
               type="text"
               value={rfidData}
@@ -117,6 +138,32 @@ const PromisoryPayments = () => {
               placeholder="Scan RFID or type user details to search user"
               className="border p-2 rounded w-full"
             />
+            <div className="relative w-64 ml-4">
+              <button
+                type="button"
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-64 px-4 py-2 text-left bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {selectedOption ? selectedOption.label : "Select an option"}
+                <span className="float-right text-gray-500">
+                  {isOpen ? "▲" : "▼"}
+                </span>
+              </button>
+
+              {isOpen && (
+                <ul className="absolute z-10 mt-1 min-w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                  {options.map((option, index) => (
+                    <li
+                      key={index}
+                      className="px-4 py-2 hover:bg-blue-100 cursor-pointer"
+                      onClick={() => handleSelect(option)}
+                    >
+                      {option.label}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
             <button
               type="submit"
               onClick={handlePrinting}
@@ -129,12 +176,15 @@ const PromisoryPayments = () => {
           <div className="overflow-x-auto shadow-md rounded-lg">
             <table className="min-w-full  border border-black-500 shadow-md text-white">
               <thead>
-                <tr className="bg-blue-500 uppercase text-xl leading-normal">
+                <tr className="bg-blue-500 uppercase text-base leading-normal">
                   <th className="py-3 px-6 font-heading">Full Name</th>
                   <th className="py-3 px-6 font-heading">Transaction Number</th>
                   <th className="py-3 px-6 font-heading">Amount Due</th>
                   <th className="py-3 px-6 font-heading">Payment Amount</th>
+                  <th className="py-3 px-6 font-heading">Promisory Payment</th>
                   <th className="py-3 px-6 font-heading">Exam Term</th>
+                  <th className="py-3 px-6 font-heading">Remarks</th>
+                  <th className="py-3 px-6 font-heading">Approved</th>
                 </tr>
               </thead>
               <tbody className="text-slate-950 text-base font-display">
@@ -171,7 +221,32 @@ const PromisoryPayments = () => {
                             }).format(tuition.amt_paid)}
                       </td>
                       <td className="py-3 px-6 text-center  uppercase">
+                        {tuition.isPromiPayment ? (
+                          <span className="text-green-600 font-bold">Yes</span>
+                        ) : (
+                          <span className="text-red-600 font-bold">No</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-6 text-center  uppercase">
                         {tuition.exam_type.toUpperCase()}
+                      </td>
+                      <td className="py-3 px-6 text-center  uppercase">
+                        {tuition.remarks}
+                      </td>
+                      <td className="py-3 px-6 text-center  uppercase">
+                        {tuition.isApproved == null ? (
+                          <button
+                            type="submit"
+                            onClick={() => handleOnclickRow(tuition)}
+                            className="bg-blue-500 text-white font-medium px-2 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+                          >
+                            For Approval
+                          </button>
+                        ) : tuition.isApproved ? (
+                          <span className="text-green-600 font-bold">Yes</span>
+                        ) : (
+                          <span className="text-red-600 font-bold">No</span>
+                        )}
                       </td>
                     </tr>
                   ))
@@ -187,21 +262,20 @@ const PromisoryPayments = () => {
             <Modal
               isOpen={isModalOpen}
               onClose={closeModal}
-              title="Tuition Details"
+              title="Approve promisorry payment?"
             >
-              <AddStudentTuitionForm
-                onClose={closeModal}
-                studentData={studentData}
-                onSubmitSuccess={fetchData}
+              <PromisorryApproval
+                transactionId={selectedTransactionId}
+                onSubmitSuccess={handleOnSubmit}
               />
             </Modal>
-            <Modal
+            {/* <Modal
               isOpen={isPmtHistoryOpen}
               onClose={closePmthistory}
               title="Payment History"
             >
               <List paymentData={payments} />
-            </Modal>
+            </Modal> */}
           </div>
         </div>
       </div>

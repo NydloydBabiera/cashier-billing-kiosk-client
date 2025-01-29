@@ -86,10 +86,10 @@ function RFIDReader({ isPromisory }) {
     setPaymentAmt(newValue);
   };
 
-  const handleManualInpuntPayment = (e) =>{
+  const handleManualInpuntPayment = (e) => {
     const newValue = e.target.value.replace(/[^0-9]/g, "");
     setInsertAmt(newValue);
-  }
+  };
 
   const handleInsertPayment = () => {
     if (data.amount_due > paymentAmt) {
@@ -146,22 +146,22 @@ function RFIDReader({ isPromisory }) {
           {
             amt: insertAmt,
             student_tuition_id: data.tuition_id,
-            isPromiPayment:  insertAmt < data.amt_balance,
+            isPromiPayment: insertAmt < data.amt_balance,
             amount_due: data.amt_balance,
+            isApproved: insertAmt == data.amt_balance ? true : null,
+            remarks: insertAmt == data.amt_balance ? "FULLY PAID" : null ,
           },
           { headers }
         );
         // add success modal or confirmation here
         console.log(response);
         // clearData()
-        
+
         sendCommand(0);
-        if(response)
-        //print receipt modal
-        setMsgType("Information");
-        setModalMsg(
-          "Receipt is printing, please wait for a while..."
-        );
+        if (response)
+          //print receipt modal
+          setMsgType("Information");
+        setModalMsg("Receipt is printing, please wait for a while...");
         openModal();
         // window.location.reload();
       } catch (error) {

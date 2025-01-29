@@ -9,7 +9,7 @@ import { Outlet, useLocation } from "react-router-dom";
 
 const MainLayout = () => {
   const location = useLocation();
-  const noNavbarRoutes = ['/dashboard'];
+  const noNavbarRoutes = ['/','/dashboard'];
   const hideNavbar = noNavbarRoutes.includes(location.pathname);
   return (
     <>

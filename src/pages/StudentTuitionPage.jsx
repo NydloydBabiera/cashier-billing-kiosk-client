@@ -106,6 +106,13 @@ const StudentTuitionPage = () => {
             placeholder="Scan RFID or type user details to search user"
             className="border p-2 rounded w-full"
           />
+          <button
+            type="submit"
+            // onClick={openModal}
+            className="bg-blue-500 font-title text-xl text-white font-medium ml-5 px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+          >
+            ADD
+          </button>
         </div>
 
         <div className="overflow-x-auto shadow-md rounded-lg">
