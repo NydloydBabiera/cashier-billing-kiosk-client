@@ -2,17 +2,20 @@ import React, { useState } from "react";
 import InputField from "./common/InputField";
 import axios from "axios";
 
-const PromisorryApproval = ({ transactionId, onSubmitSuccess }) => {
+const PromisorryApproval = ({ transactionId, onSubmitSuccess, approvalStatus }) => {
   console.log(transactionId);
   const [isApproved, setIsApproved] = useState(null);
   const [remarks, setRemarks] = useState("");
+  const apiUrl = import.meta.env.VITE_API_URL
 
   const handleReject = () => {
     setIsApproved(false);
+    approvalStatus(false)
   };
   const handleApprove = () => {
     setIsApproved(true);
     setRemarks("APPROVED");
+    approvalStatus(true)
   };
   const handleButtonSubmit = async (e) => {
     e.preventDefault();
@@ -21,7 +24,7 @@ const PromisorryApproval = ({ transactionId, onSubmitSuccess }) => {
         "Content-Type": "application/json",
       };
       const response = await axios.put(
-        `http://localhost:6100/transactions/promisoryApproval/${transactionId}`,
+        `${apiUrl}/transactions/promisoryApproval/${transactionId}`,
         { isApproved: isApproved, remarks: remarks },
         { headers }
       );

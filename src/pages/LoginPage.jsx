@@ -6,8 +6,8 @@ import Modal from "../components/common/Modal";
 import UpdatePassword from "../components/UpdatePassword";
 
 const LoginPage = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [dataResponse, setDataResponse] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const openModal = () => setIsModalOpen(true);
@@ -22,6 +22,13 @@ const LoginPage = () => {
     setPassword("");
     setUpdatePassModal(false);
   };
+  const apiUrl = import.meta.env.VITE_API_URL
+  console.log(apiUrl)
+
+  useEffect(() => {
+    // Clear the password value on page reload
+    setPassword('');
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -30,10 +37,16 @@ const LoginPage = () => {
         "Content-Type": "application/json",
       };
       const response = await axios.post(
-        "http://localhost:6100/userInformation/authenticateUser",
+        `${import.meta.env.VITE_API_URL}/userInformation/authenticateUser`,
         { username, password },
         { headers }
       );
+
+      if (response.data === null) {
+        setMsgType("Information");
+        setModalMsg("No user found");
+        openModal();
+      }
       setDataResponse(response.data);
       localStorage.setItem("roles", response.data.identification.user_type);
 
@@ -50,11 +63,9 @@ const LoginPage = () => {
         response.data.identification.user_type === "CASHIER"
       ) {
         navigate("/landingPage");
-      } else {
-        setMsgType("Information");
-        setModalMsg("No user found");
-        openModal();
       }
+
+
     } catch (error) {
       console.log(error);
     }
@@ -64,6 +75,8 @@ const LoginPage = () => {
     setConfirmModal(true);
     closeModal();
   };
+
+ 
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

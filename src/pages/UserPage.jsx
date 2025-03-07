@@ -17,11 +17,12 @@ const UserPage = () => {
   const [rfidData, setRfidData] = useState("");
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+  const apiUrl = import.meta.env.VITE_API_URL
 
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:6100/userInformation/getAllUsers"
+        `${apiUrl}/userInformation/getAllUsers`
       );
       setData(response.data); // Set the fetched data
       setLoading(false);
@@ -114,7 +115,7 @@ const UserPage = () => {
                 <th className="py-3 px-6 font-heading">Type</th>
               </tr>
             </thead>
-            <tbody className="text-slate-950 text-sm font-display">
+            <tbody className="text-slate-950 text-base font-display">
               {filteredData.length > 0 ? (
                 filteredData.map((user) => (
                   <tr

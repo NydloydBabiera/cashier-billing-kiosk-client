@@ -22,11 +22,12 @@ const StudentTuitionPage = () => {
   const closeModal = () => setIsModalOpen(false);
   const openPmthistory = () => setPmtHistoryOpen(true);
   const closePmthistory = () => setPmtHistoryOpen(false);
+  const apiUrl = import.meta.env.VITE_API_URL
 
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:6100/tuition/getAllStudentTuition"
+        `${apiUrl}/tuition/getAllStudentTuition`
       );
       setData(response.data); // Set the fetched data
       setLoading(false);
@@ -39,7 +40,7 @@ const StudentTuitionPage = () => {
   const fetchPayments = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:6100/transactions/getAllTransactions"
+        `${apiUrl}/transactions/getAllTransactions`
       );
       setpaymentData(response.data); // Set the fetched data
       setLoading(false);
@@ -71,8 +72,8 @@ const StudentTuitionPage = () => {
   };
   const payments = selectedPayment
     ? paymentData.filter(
-        (payment) => payment.tuition?.student?.rfid_id === selectedPayment
-      )
+      (payment) => payment.tuition?.student?.rfid_id === selectedPayment
+    )
     : [];
 
   const handleInputChange = (e) => {
@@ -83,13 +84,13 @@ const StudentTuitionPage = () => {
   // Filter the data based on the search term (case insensitive)
   const filteredData = searchTerm
     ? data.filter(
-        (item) =>
-          item.firstName.includes(searchTerm) ||
-          item.middleName.includes(searchTerm) ||
-          item.lastName.includes(searchTerm) ||
-          String(item.information.id_number).includes(searchTerm) ||
-          String(item.information.rfid_id).includes(searchTerm)
-      )
+      (item) =>
+        item.firstName.includes(searchTerm) ||
+        item.middleName.includes(searchTerm) ||
+        item.lastName.includes(searchTerm) ||
+        String(item.information.id_number).includes(searchTerm) ||
+        String(item.information.rfid_id).includes(searchTerm)
+    )
     : data;
 
   return (
@@ -151,32 +152,48 @@ const StudentTuitionPage = () => {
                       {!tuition.information.student?.tuition_amt
                         ? 0
                         : new Intl.NumberFormat("en-PH", {
-                            style: "currency",
-                            currency: "PHP",
-                          }).format(tuition.information.student?.tuition_amt)}
+                          style: "currency",
+                          currency: "PHP",
+                        }).format(tuition.information.student?.tuition_amt)}
                     </td>
 
                     <td className="py-3 px-6 text-center uppercase">
                       {!tuition.information.student?.tuition
                         ? 0
                         : !tuition.information.student?.tuition.length > 0
-                        ? new Intl.NumberFormat("em-PH", {
+                          ? new Intl.NumberFormat("em-PH", {
                             style: "currency",
                             currency: "PHP",
                           }).format(tuition.information.student?.tuition_amt)
-                        : new Intl.NumberFormat("en-PH", {
+                          : new Intl.NumberFormat("en-PH", {
                             style: "currency",
                             currency: "PHP",
                           }).format(
                             tuition.information.student?.tuition_amt -
-                              tuition.information?.student?.tuition.reduce(
-                                (acc, curr) => acc + curr.amt_paid,
-                                0
-                              )
+                            tuition.information?.student?.tuition.reduce(
+                              (acc, curr) => acc + curr.amt_paid,
+                              0
+                            )
                           )}
                     </td>
                     <td className="py-3 px-6 text-center">
-                      {!tuition.information.student?.tuition_amt ? (
+                      <button
+                        type="submit"
+                        onClick={() => handleOnclickRow(tuition)}
+                        className="bg-blue-500 text-white font-medium px-2 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+                      >
+                        ADD TUITION
+                      </button>
+                      <button
+                        type="submit"
+                        onClick={() =>
+                          handleViewPaymnent(tuition.information.rfid_id)
+                        }
+                        className="bg-blue-500 text-white font-medium px-2 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+                      >
+                        Payments
+                      </button>
+                      {/* {!tuition.information.student?.tuition_amt ? (
                         <button
                           type="submit"
                           onClick={() => handleOnclickRow(tuition)}
@@ -194,7 +211,7 @@ const StudentTuitionPage = () => {
                         >
                           Payments
                         </button>
-                      )}
+                      )} */}
                     </td>
                   </tr>
                 ))

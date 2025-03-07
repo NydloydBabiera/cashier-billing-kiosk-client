@@ -8,6 +8,8 @@ const UpdatePassword = ({ onSubmit, onSubmitSuccess, id }) => {
     newPassword: "",
     confirmPassword: "",
   });
+  const apiUrl = import.meta.env.VITE_API_URL
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -35,7 +37,7 @@ const UpdatePassword = ({ onSubmit, onSubmitSuccess, id }) => {
         "Content-Type": "application/json",
       };
       const response = await axios.put(
-        `http://localhost:6100/userInformation/updatePassword/${id}`,
+        `${apiUrl}/userInformation/updatePassword/${id}`,
         { newPassword: formData.newPassword },
         { headers }
       );

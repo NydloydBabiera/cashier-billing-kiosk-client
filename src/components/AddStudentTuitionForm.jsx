@@ -4,6 +4,7 @@ import axios from "axios";
 
 const AddStudentTuitionForm = ({ studentData, onSubmitSuccess, onClose }) => {
   const [tuitionAmt, setTuitionAmt] = useState("");
+  const apiUrl = import.meta.env.VITE_API_URL
 
   const handleChange = (e) => {
     const newValue = e.target.value.replace(/[^0-9]/g, "");
@@ -18,7 +19,7 @@ const AddStudentTuitionForm = ({ studentData, onSubmitSuccess, onClose }) => {
         "Content-Type": "application/json",
       };
       const response = await axios.post(
-        "http://localhost:6100/tuition/addStudentTuition",
+        `${apiUrl}/tuition/addStudentTuition`,
         {
           user_identification_id:
             studentData.information?.user_identification_id,

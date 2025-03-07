@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import StudentInformationCard from "./StudentInformationCard";
 import axios from "axios";
 import InputField from "./common/InputField";
@@ -23,7 +23,9 @@ function RFIDReader({ isPromisory }) {
   const [msgType, setMsgType] = useState("");
   const [modalMsg, setModalMsg] = useState("");
   const [confirmModal, setConfirmModal] = useState(false);
-
+  const inputRef = useRef(null)
+  // const apiUrl = import.meta.env.VITE_API_URL
+  const apiUrl = 'http://localhost:6100'
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedRfid(rfidData);
@@ -41,15 +43,21 @@ function RFIDReader({ isPromisory }) {
     }
   }, [debouncedRfid]);
   useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
     // Connect to WebSocket server
     const socket = io("http://localhost:3000");
 
     // Listen for data from Arduino
+    // socket.on("arduino-data", (data) => {
     socket.on("arduino-data", (data) => {
       console.log("Data from Arduino:", data);
       setInsertAmt(data); // Update sensor data
     });
-
+    // socket.on('arduino-data', (highest) => {
+    //   console.log('Highest Value:', highest);
+    // });
     // Cleanup on unmount
     return () => socket.disconnect();
   }, []);
@@ -92,7 +100,8 @@ function RFIDReader({ isPromisory }) {
   };
 
   const handleInsertPayment = () => {
-    if (data.amount_due > paymentAmt) {
+    if (data.amt_balance > paymentAmt) {
+      console.log(paymentAmt)
       setMsgType("Warning");
       setModalMsg(
         "Your payment is not equal to your amount balance, this will be a promisory payment. Would you like to proceed?"
@@ -113,13 +122,13 @@ function RFIDReader({ isPromisory }) {
 
   const clearData = () => {
     setRfidData("");
-    sendCommand("off");
+    sendCommand(0);
   };
 
   const handleRfidSubmit = async (rfidValue) => {
     try {
       const response = await axios.get(
-        `http://localhost:6100/tuition/getStudentTuition/${rfidValue}`
+        `${apiUrl}/tuition/getStudentTuition/${rfidValue}`
       );
       {
         loading && <p>Loading...</p>;
@@ -142,14 +151,14 @@ function RFIDReader({ isPromisory }) {
           "Content-Type": "application/json",
         };
         const response = await axios.post(
-          "http://localhost:6100/transactions/addTuitionPayment",
+          `${apiUrl}/transactions/addTuitionPayment`,
           {
             amt: insertAmt,
             student_tuition_id: data.tuition_id,
             isPromiPayment: insertAmt < data.amt_balance,
             amount_due: data.amt_balance,
             isApproved: insertAmt == data.amt_balance ? true : null,
-            remarks: insertAmt == data.amt_balance ? "FULLY PAID" : null ,
+            remarks: insertAmt == data.amt_balance ? "FULLY PAID" : null,
           },
           { headers }
         );
@@ -163,12 +172,44 @@ function RFIDReader({ isPromisory }) {
           setMsgType("Information");
         setModalMsg("Receipt is printing, please wait for a while...");
         openModal();
+        printReceipt(response.data.tuition_payment_transaction_id)
         // window.location.reload();
       } catch (error) {
         // add error modal or confirmation here
         console.error("Error submitting form:", error);
       }
   };
+
+  const printReceipt = async (transaction_id) => {
+    try {
+      const headers = {
+        "Content-Type": "application/json",
+      };
+      const response = await axios.post(
+        `${apiUrl}/transactions/printReceipt/${transaction_id}`,
+
+        { headers }
+      );
+      // add success modal or confirmation here
+      console.log(response);
+      // clearData()
+
+
+      if (response) {
+        setMsgType("Information");
+        setModalMsg("Please get your receipt");
+        setTimeout(() => {
+          closeModal();
+          window.location.reload();
+        }, 3000);
+
+      }
+      // window.location.reload();
+    } catch (error) {
+      // add error modal or confirmation here
+      console.error("Error submitting form:", error);
+    }
+  }
   const handleInsertAmt = (e) => {
     const newValue = e.target.value.replace(/[^0-9]/g, "");
     setInsertAmt(newValue);
@@ -204,6 +245,7 @@ function RFIDReader({ isPromisory }) {
             onChange={handleInputChange}
             placeholder="Scan RFID to begin transaction"
             className="border p-2 rounded w-full text-3xl"
+            ref={inputRef}
           />
         </div>
 
@@ -225,8 +267,8 @@ function RFIDReader({ isPromisory }) {
             type="number"
             placeholder="Payment"
             onChange={handleInputPayment}
-            // disabled={false}
-            // value={arduinoData}
+          // disabled={false}
+          // value={arduinoData}
           />
         ) : (
           ""
@@ -262,7 +304,7 @@ function RFIDReader({ isPromisory }) {
             value={insertAmt}
             onChange={handleManualInpuntPayment}
             className="text-center text-4xl w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-            // disabled={true}
+          // disabled={true}
           />
           <button
             onClick={handlePaymentSubmit}

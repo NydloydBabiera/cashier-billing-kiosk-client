@@ -14,6 +14,7 @@ const AddUserForm = ({ onSubmit, onSubmitSuccess  }) => {
     userType: "",
   });
   const [responseMessage, setResponseMessage] = useState("");
+  const apiUrl = import.meta.env.VITE_API_URL
   
   // const [rfidNumber, setrfidNumber] = useState("");
 
@@ -41,7 +42,7 @@ const AddUserForm = ({ onSubmit, onSubmitSuccess  }) => {
         'Content-Type': 'application/json',
       };
       const response = await axios.post(
-        "http://localhost:6100/userInformation/createUser",
+        `${apiUrl}/userInformation/createUser`,
         formData, {headers}
       );
       onSubmitSuccess()
