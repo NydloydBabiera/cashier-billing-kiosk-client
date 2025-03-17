@@ -42,13 +42,13 @@
 
         <div className="place-items-center content-center">
           <RFIDReader isPromisory/>
-          <button
+          {/* <button
             type="submit"
             onClick={() =>window.location.reload()}
             className="bg-blue-500 text-white  text-2xl w-full font-handwriting px-2 my-2 rounded-lg hover:bg-blue-600 transition duration-200"
           >
             Cancel
-          </button>
+          </button> */}
         </div>
       </div>
     </div>

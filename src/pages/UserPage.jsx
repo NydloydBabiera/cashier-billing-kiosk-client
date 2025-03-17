@@ -132,13 +132,13 @@ const UserPage = () => {
                       {user.lastName}
                     </td>
                     <td className="py-3 px-6 text-center uppercase">
-                      {user.information.rfid_id}
+                      {user?.information?.rfid_id}
                     </td>
                     <td className="py-3 px-6 text-center uppercase">
-                      {user.information.id_number}
+                      {user?.information?.id_number}
                     </td>
                     <td className="py-3 px-6 text-center">
-                      {user.information.user_type}
+                      {user?.information?.user_type}
                     </td>
                   </tr>
                 ))

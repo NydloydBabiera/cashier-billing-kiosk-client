@@ -32,7 +32,7 @@ const MessageModal = ({ isOpen, onClose, messsage, type, onConfirm }) => {
         </div>
 
         <div>
-          <p>{messsage}</p>
+          <p className="text-2xl">{messsage}</p>
         </div>
         <div className="flex justify-end gap-3 mt-6">
           <button

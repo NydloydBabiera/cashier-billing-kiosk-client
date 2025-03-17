@@ -38,7 +38,7 @@ const StudentInformationCard = ({ studentData }) => {
           label="Balance"
           id="lastName"
           type="text"
-          value={studentData.balance}
+          value={studentData?.balance?.toFixed(2)}
           placeholder="Balance"
           disabled={true}
         />
@@ -46,7 +46,7 @@ const StudentInformationCard = ({ studentData }) => {
           label="Amount Due"
           id="lastName"
           type="text"
-          value={studentData.amt_balance}
+          value={studentData?.amt_balance?.toFixed(2)}
           placeholder="Amount Due"
           disabled={true}
         />

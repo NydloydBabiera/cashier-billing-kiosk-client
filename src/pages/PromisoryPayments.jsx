@@ -103,18 +103,29 @@ const PromisoryPayments = () => {
     // Paragraph Text
     doc.setFont("times", "normal");
     doc.setFontSize(12);
-    const text = `  Please be informed that in order to claim your examination permit, you are required to settle the outstanding balance or pay the required amount at the Cashier’s Office. The permit will not be released until the full payment is made.`;
+    let text = '';
+
+    if (tuition.isApproved) {
+      text = `  This is to acknowledge that your request for a promissory payment has been reviewed and approved. 
+      
+  The details of the approved payment are as follows:`;
+    }else{
+      text = `  Please be informed that in order to claim your examination permit, you are required to settle the outstanding balance or pay the required amount at the Cashier’s Office. The permit will not be released until the full payment is made.`;
+      
+    }
+
     doc.text(text, 20, 30, { maxWidth: 170 }, { align: "justify" });
 
     // Table
     autoTable(doc, {
       startY: 50,
-      head: [["No.", "NAME", "AMOUNT DUE", "REMARKS"]],
+      head: [["No.", "NAME", "AMOUNT DUE", "PAYMENT", "REMARKS"]],
       body: [
         [
           `${tuition.tuition_payment_transaction_id}`,
           `${tuition.tuition.student.information.firstName.toUpperCase()} ${tuition.tuition.student.information.middleName.toUpperCase()} ${tuition.tuition.student.information.lastName.toUpperCase()}`,
-          `${tuition.amount_due}`,
+          `${tuition.amount_due.toFixed(2)}`,
+          `${tuition.amt_paid.toFixed(2)}`,
           tuition.remarks || "",
         ],
       ],
@@ -133,13 +144,22 @@ const PromisoryPayments = () => {
       tableLineWidth: 0.2, // ✅ Ensures borders for all cells
       tableLineColor: [0, 0, 0.2] // ✅ Black border for all lines
     });
-
+    let notes = ""
     // Additional Notes
-    const notes = `Kindly ensure that all payments are completed before the examination date, as failure to do so may result in being unable to take the examination.
+    if(tuition.isApproved){
+      notes = `   By signing below, you agree to the terms of the promissory payment arrangement and acknowledge that you are responsible for paying the remaining balance balance by the due date.
+      
+    For any inquiries regarding the payment details, please contract the Treasury's office
+      
+    Thank you for your prompt attention to this matter.`;
+    }else {
+      notes = `   Kindly ensure that all payments are completed before the examination date, as failure to do so may result in being unable to take the examination.
   
 For any inquiries regarding payment details, please contact the Cashier’s Office.
-  
+        
 Thank you for your prompt attention to this matter.`;
+    }
+   
     doc.text(notes, 20, doc.lastAutoTable.finalY + 10, { maxWidth: 170 });
 
     // Signature Lines
@@ -177,7 +197,7 @@ Thank you for your prompt attention to this matter.`;
   const handleOnSubmit = async () => {
     fetchData();
     closeModal();
-    
+
     try {
       const response = await axios.get(
         `${apiUrl}/transactions/getSpecificTransaction/${studentData.tuition_payment_transaction_id}`
@@ -292,6 +312,7 @@ Thank you for your prompt attention to this matter.`;
                   <th className="py-3 px-6 font-heading">Exam Term</th>
                   <th className="py-3 px-6 font-heading">Remarks</th>
                   <th className="py-3 px-6 font-heading">Approved</th>
+                  <th className="py-3 px-6 font-heading">Form</th>
                 </tr>
               </thead>
               <tbody className="text-slate-950 text-base font-display">
@@ -354,6 +375,17 @@ Thank you for your prompt attention to this matter.`;
                         ) : (
                           <span className="text-red-600 font-bold">No</span>
                         )}
+                      </td>
+                      <td className="py-3 px-6 text-center  uppercase">
+                        {tuition.isApproved !== null ? (
+                          <button
+                            type="submit"
+                            onClick={() => generatePromissoryForm(tuition)}
+                            className="bg-blue-500 text-white font-medium px-2 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+                          >
+                            Print Form
+                          </button>
+                        ) : <></>}
                       </td>
                     </tr>
                   ))

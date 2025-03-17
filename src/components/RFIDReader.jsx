@@ -104,7 +104,7 @@ function RFIDReader({ isPromisory }) {
       console.log(paymentAmt)
       setMsgType("Warning");
       setModalMsg(
-        "Your payment is not equal to your amount balance, this will be a promisory payment. Would you like to proceed?"
+        "YOU HAVE NOT met the full payment of your remaining balance this payment will be processed as a PROMISSORY. Would you like to proceed?"
       );
       openModal();
       return;
@@ -123,6 +123,7 @@ function RFIDReader({ isPromisory }) {
   const clearData = () => {
     setRfidData("");
     sendCommand(0);
+    window.location.reload();
   };
 
   const handleRfidSubmit = async (rfidValue) => {
@@ -197,11 +198,12 @@ function RFIDReader({ isPromisory }) {
 
       if (response) {
         setMsgType("Information");
-        setModalMsg("Please get your receipt");
+        setModalMsg("Payment successful, Please get your receipt");
         setTimeout(() => {
-          closeModal();
+          // closeModal();
+          // openModal();
           window.location.reload();
-        }, 3000);
+        }, 5000);
 
       }
       // window.location.reload();
@@ -254,7 +256,7 @@ function RFIDReader({ isPromisory }) {
             onClick={clearData}
             className="w-full bg-indigo-600 text-white py-2 rounded-md font-semibold hover:bg-indigo-700 transition"
           >
-            Clear Data
+            CANCEL
           </button>
         ) : (
           ""
@@ -270,6 +272,7 @@ function RFIDReader({ isPromisory }) {
           // disabled={false}
           // value={arduinoData}
           />
+
         ) : (
           ""
         )}
@@ -281,6 +284,7 @@ function RFIDReader({ isPromisory }) {
           >
             Proceed Payment
           </button>
+
         ) : (
           ""
         )}
@@ -312,7 +316,16 @@ function RFIDReader({ isPromisory }) {
           >
             Submit Payment
           </button>{" "}
+          {!insertAmt ? (<button
+            type="submit"
+            onClick={() => window.location.reload()}
+            className="bg-blue-500 text-white  text-2xl w-full font-handwriting px-2 my-2 rounded-lg hover:bg-blue-600 transition duration-200"
+          >
+            Cancel
+          </button>) : ""}
+
         </div>
+
       ) : (
         ""
       )}
