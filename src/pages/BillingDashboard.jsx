@@ -10,6 +10,9 @@
     const [isPromisory, setIsPromisory] = useState(null)
 
     const onPaymentType = (val) => setIsPromisory(val)
+    setTimeout(() => {
+      window.location.reload();
+    }, 600000)
 
     return (
 

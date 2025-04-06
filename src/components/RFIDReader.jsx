@@ -45,6 +45,7 @@ function RFIDReader({ isPromisory }) {
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
+      sendCommand(0);
     }
     // Connect to WebSocket server
     const socket = io("http://localhost:3000");
