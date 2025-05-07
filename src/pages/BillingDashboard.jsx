@@ -10,9 +10,13 @@
     const [isPromisory, setIsPromisory] = useState(null)
 
     const onPaymentType = (val) => setIsPromisory(val)
+    // diri na part ichange ang idle time
     setTimeout(() => {
       window.location.reload();
-    }, 600000)
+    }, 180000) //<---- amuni ang time
+    //600000 = 10 mins
+    //300000 = 5mins
+    //180000 = 3mins
 
     return (
 

@@ -250,6 +250,8 @@ Thank you for your prompt attention to this matter.`;
     setIsApproved(status);
   };
 
+  const sortedPayments = data.sort((a,b) => b.tuition_payment_transaction_id - a.tuition_payment_transaction_id)
+ 
   return (
     <div className="h-screen">
       <div className={isPrinting ? `hidden` : `block`}>

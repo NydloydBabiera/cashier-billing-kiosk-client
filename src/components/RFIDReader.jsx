@@ -101,15 +101,41 @@ function RFIDReader({ isPromisory }) {
   };
 
   const handleInsertPayment = () => {
-    if (data.amt_balance > paymentAmt) {
-      console.log(paymentAmt)
+    if (!paymentAmt) {
       setMsgType("Warning");
       setModalMsg(
-        "YOU HAVE NOT met the full payment of your remaining balance this payment will be processed as a PROMISSORY. Would you like to proceed?"
+        "Please input payment amount"
       );
       openModal();
       return;
     }
+
+    if (paymentAmt) {
+      setMsgType("Warning");
+      setModalMsg(`You're about to pay Php ${paymentAmt} pesos for your balance, NOTE: Once made, this payment can't be changed or undone! WOULD YOU LIKE TO PROCEED?`)
+      openModal()
+      // return;
+
+      if (data.amt_balance > paymentAmt) {
+        console.log(paymentAmt)
+        setMsgType("Information");
+        setModalMsg(
+          "YOU HAVE NOT met the full payment of your remaining balance, this payment will be processed as a PROMISSORY. Would you like to proceed?"
+        );
+        openModal();
+        return;
+      }
+    }
+
+    // if (data.amt_balance > paymentAmt && !isModalOpen) {
+    //   console.log(paymentAmt)
+    //   setMsgType("Information");
+    //   setModalMsg(
+    //     "YOU HAVE NOT met the full payment of your remaining balance, this payment will be processed as a PROMISSORY. Would you like to proceed?"
+    //   );
+    //   openModal();
+    //   return;
+    // }
     setIsForPmt(true);
     sendCommand(1);
   };
@@ -132,12 +158,18 @@ function RFIDReader({ isPromisory }) {
       const response = await axios.get(
         `${apiUrl}/tuition/getStudentTuition/${rfidValue}`
       );
-      {
-        loading && <p>Loading...</p>;
+      console.log('response:', Object.keys(response.data).length)
+
+      if (Object.keys(response.data).length === 0) {
+        setMsgType("Warning");
+        setModalMsg("User not found");
+        openModal();
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+        return;
       }
-      {
-        error && <p style={{ color: "red" }}>{error}</p>;
-      }
+
       setData(response.data); // Set the fetched data
       setLoading(false);
       sendCommand("on");
@@ -147,6 +179,20 @@ function RFIDReader({ isPromisory }) {
     }
   };
   const handlePaymentSubmit = async () => {
+    let messageHigh = 'The amount you have paid is MORE THAN the required amount you entered. PLEASE NOTE that it will still be credited to your account. Once made, this payment can\'t be changed or undone. WOULD YOU LIKE TO PROCEED WITH THIS PAYMENT?'
+    let messageLow = 'The amount you have paid is LESS THAN the required amount you entered. PLEASE NOTE that it will be credited as a promissory payment. However your outstanding balance will remain unpaid in full. Once made, this payment can\'t be changed or undone. WOULD YOU LIKE TO PROCEED WITH THIS PARTIAL PAYMENT?'
+    if (insertAmt >= paymentAmt) {
+      setMsgType("Warning");
+      setModalMsg(messageHigh);
+      openModal();
+      return
+    } else if (insertAmt <= paymentAmt) {
+      setMsgType("Warning");
+      setModalMsg(messageLow);
+      openModal();
+      return
+    }
+
     if (data)
       try {
         const headers = {
